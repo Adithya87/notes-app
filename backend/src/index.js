@@ -2,7 +2,7 @@
 async function ensureDemoUser() {
   const db = await openDb();
   const username = 'temp';
-  const password = 'temp';
+  const password = '12345678';
   const hash = await bcrypt.hash(password, 10);
   try {
     await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);

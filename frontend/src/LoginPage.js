@@ -26,7 +26,7 @@ function LoginPage({ setToken }) {
       <div style={{ marginBottom: '1rem', color: '#2563eb', fontWeight: 'bold' }}>
         Demo credentials: <br />
         Username: <span style={{ fontFamily: 'monospace' }}>temp</span> <br />
-        Password: <span style={{ fontFamily: 'monospace' }}>temp</span>
+        Password: <span style={{ fontFamily: 'monospace' }}>12345678</span>
       </div>
       <form onSubmit={handleSubmit}>
         <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
