@@ -1,3 +1,12 @@
+// Danger: Remove all users (admin/maintenance only)
+app.delete('/api/admin/remove-all-users', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM users');
+    res.json({ success: true, message: 'All users removed.' });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to remove users.' });
+  }
+});
 // Ensure demo user exists on every start
 async function ensureDemoUser() {
   const username = 'temp';
