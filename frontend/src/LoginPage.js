@@ -23,6 +23,11 @@ function LoginPage({ setToken }) {
   return (
     <div className="auth-container">
       <h2>Login</h2>
+      <div style={{ marginBottom: '1rem', color: '#2563eb', fontWeight: 'bold' }}>
+        Demo credentials: <br />
+        Username: <span style={{ fontFamily: 'monospace' }}>temp</span> <br />
+        Password: <span style={{ fontFamily: 'monospace' }}>temp</span>
+      </div>
       <form onSubmit={handleSubmit}>
         <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
