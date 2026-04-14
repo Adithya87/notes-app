@@ -44,18 +44,6 @@ function authenticateToken(req, res, next) {
 
 
 // User registration
-app.post('/api/auth/register', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
-    res.json({ success: true });
-  } catch (e) {
-    console.error('Registration error:', e);
-    res.status(400).json({ error: 'Username taken' });
-  }
-});
 
 // User login
 app.post('/api/auth/login', async (req, res) => {

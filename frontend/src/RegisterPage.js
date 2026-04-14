@@ -36,4 +36,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+// Registration page removed
