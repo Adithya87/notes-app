@@ -1,16 +1,14 @@
 // Ensure demo user exists on every start
 async function ensureDemoUser() {
-  const db = await openDb();
   const username = 'temp';
   const password = '12345678';
   const hash = await bcrypt.hash(password, 10);
   try {
-    await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);
+    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
     console.log('Demo user created');
   } catch (e) {
     // Ignore if already exists
   }
-  await db.close();
 }
 ensureDemoUser();
 // Run migrations on every start
@@ -18,7 +16,7 @@ import './migrate.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { openDb } from './db.js';
+const pool = require('./db');
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { marked } from 'marked';
@@ -43,29 +41,26 @@ function authenticateToken(req, res, next) {
   });
 }
 
+
 // User registration
 app.post('/api/auth/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
-  const db = await openDb();
   try {
     const hash = await bcrypt.hash(password, 10);
-    await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);
+    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
     res.json({ success: true });
   } catch (e) {
     console.error('Registration error:', e);
     res.status(400).json({ error: 'Username taken' });
-  } finally {
-    await db.close();
   }
 });
 
 // User login
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
-  const db = await openDb();
-  const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
-  await db.close();
+  const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  const user = result.rows[0];
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
@@ -75,37 +70,32 @@ app.post('/api/auth/login', async (req, res) => {
 
 // CRUD for notes (protected)
 app.get('/api/notes', authenticateToken, async (req, res) => {
-  const db = await openDb();
-  const notes = await db.all('SELECT * FROM notes WHERE user_id = ? ORDER BY updated_at DESC', [req.user.id]);
-  await db.close();
-  res.json(notes);
+  const result = await pool.query('SELECT * FROM notes WHERE user_id = $1 ORDER BY updated_at DESC', [req.user.id]);
+  res.json(result.rows);
 });
 
 app.post('/api/notes', authenticateToken, async (req, res) => {
   const { title, body } = req.body;
   if (!title || !body) return res.status(400).json({ error: 'Missing fields' });
-  const db = await openDb();
-  const result = await db.run('INSERT INTO notes (user_id, title, body) VALUES (?, ?, ?)', [req.user.id, title, body]);
-  const note = await db.get('SELECT * FROM notes WHERE id = ?', [result.lastID]);
-  await db.close();
-  res.json(note);
+  const insertResult = await pool.query(
+    'INSERT INTO notes (user_id, title, body) VALUES ($1, $2, $3) RETURNING *',
+    [req.user.id, title, body]
+  );
+  res.json(insertResult.rows[0]);
 });
 
-
-// Update note (no versioning)
 app.put('/api/notes/:id', authenticateToken, async (req, res) => {
   const { title, body } = req.body;
-  const db = await openDb();
-  await db.run('UPDATE notes SET title = ?, body = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?', [title, body, req.params.id, req.user.id]);
-  const note = await db.get('SELECT * FROM notes WHERE id = ?', [req.params.id]);
-  await db.close();
-  res.json(note);
+  await pool.query(
+    'UPDATE notes SET title = $1, body = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 AND user_id = $4',
+    [title, body, req.params.id, req.user.id]
+  );
+  const noteResult = await pool.query('SELECT * FROM notes WHERE id = $1', [req.params.id]);
+  res.json(noteResult.rows[0]);
 });
 
 app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
-  const db = await openDb();
-  await db.run('DELETE FROM notes WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-  await db.close();
+  await pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
   res.json({ success: true });
 });
 
@@ -120,10 +110,11 @@ app.post('/api/preview', (req, res) => {
 // Search notes
 app.get('/api/search', authenticateToken, async (req, res) => {
   const { q } = req.query;
-  const db = await openDb();
-  const notes = await db.all('SELECT * FROM notes WHERE user_id = ? AND (title LIKE ? OR body LIKE ?)', [req.user.id, `%${q}%`, `%${q}%`]);
-  await db.close();
-  res.json(notes);
+  const result = await pool.query(
+    'SELECT * FROM notes WHERE user_id = $1 AND (title ILIKE $2 OR body ILIKE $2)',
+    [req.user.id, `%${q}%`]
+  );
+  res.json(result.rows);
 });
 
 const PORT = process.env.PORT || 5000;
