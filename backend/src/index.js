@@ -1,4 +1,5 @@
 // ...existing code...
+// ...existing code...
 // Danger: Remove all users (admin/maintenance only)
 app.delete('/api/admin/remove-all-users', async (req, res) => {
   try {
@@ -8,19 +9,6 @@ app.delete('/api/admin/remove-all-users', async (req, res) => {
     res.status(500).json({ error: 'Failed to remove users.' });
   }
 });
-// Ensure demo user exists on every start
-async function ensureDemoUser() {
-  const username = 'temp';
-  const password = '12345678';
-  const hash = await bcrypt.hash(password, 10);
-  try {
-    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
-    console.log('Demo user created');
-  } catch (e) {
-    // Ignore if already exists
-  }
-}
-ensureDemoUser();
 // Run migrations on every start
 
 import './migrate.js';
