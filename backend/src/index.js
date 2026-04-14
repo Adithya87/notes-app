@@ -36,6 +36,7 @@ app.post('/api/auth/register', async (req, res) => {
     await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);
     res.json({ success: true });
   } catch (e) {
+    console.error('Registration error:', e);
     res.status(400).json({ error: 'Username taken' });
   } finally {
     await db.close();
