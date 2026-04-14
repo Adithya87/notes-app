@@ -1,5 +1,6 @@
-const pool = require('./src/db');
-const bcrypt = require('bcryptjs');
+
+import pool from './src/db.js';
+import bcrypt from 'bcryptjs';
 
 async function createDemoUser() {
   const username = 'temp';
