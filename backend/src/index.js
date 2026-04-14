@@ -1,3 +1,4 @@
+// ...existing code...
 // Danger: Remove all users (admin/maintenance only)
 app.delete('/api/admin/remove-all-users', async (req, res) => {
   try {
