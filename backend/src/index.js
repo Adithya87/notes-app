@@ -1,6 +1,22 @@
-// ...existing code...
-// ...existing code...
-// Danger: Remove all users (admin/maintenance only)
+import dotenv from 'dotenv';
+dotenv.config();
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
+// Run migrations on every start
+
+import './migrate.js';
+import express from 'express';
+import cors from 'cors';
+import pool from './db.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { marked } from 'marked';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+
 app.delete('/api/admin/remove-all-users', async (req, res) => {
   try {
     await pool.query('DELETE FROM users');
@@ -9,22 +25,8 @@ app.delete('/api/admin/remove-all-users', async (req, res) => {
     res.status(500).json({ error: 'Failed to remove users.' });
   }
 });
-// Run migrations on every start
 
-import './migrate.js';
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import pool from './db.js';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { marked } from 'marked';
 
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 

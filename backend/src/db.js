@@ -1,7 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://notes_app_v3t6_user:v1XQ3XpA3edLCLR1kROeDPij4gHR9KKc@dpg-d7f0l97lk1mc73c3ddig-a/notes_app_v3t6'
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 export default pool;
