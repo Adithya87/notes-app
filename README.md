@@ -54,7 +54,6 @@ npm install
 ### 4. Run database migrations
 ```sh
 cd backend
-npm run migrate
 ```
 
 ### 5. Run locally

@@ -1,10 +1,4 @@
 import dotenv from 'dotenv';
-dotenv.config();
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
-
-// Run migrations on every start
-
-import './migrate.js';
 import express from 'express';
 import cors from 'cors';
 import pool from './db.js';
@@ -12,10 +6,26 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { marked } from 'marked';
 
+dotenv.config();
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// User registration
+app.post('/api/auth/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Registration error:', e);
+    res.status(400).json({ error: 'Username taken' });
+  }
+});
 
 app.delete('/api/admin/remove-all-users', async (req, res) => {
   try {
