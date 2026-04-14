@@ -9,8 +9,16 @@ import { marked } from 'marked';
 dotenv.config();
 console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
+
+const allowedOrigins = [
+  'https://notes-app-ten-vert.vercel.app'
+];
+
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 // User registration
