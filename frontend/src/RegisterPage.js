@@ -13,7 +13,7 @@ function RegisterPage() {
     e.preventDefault();
     setError('');
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { username, password });
+      await axios.post('https://notes-app-wnak.onrender.com/api/auth/register', { username, password });
       setSuccess(true);
       setTimeout(() => navigate('/login'), 1000);
     } catch (err) {

@@ -14,7 +14,7 @@ function NotesPage({ token, setToken, dark, setDark }) {
 
   async function fetchNotes() {
     setLoading(true);
-    const res = await axios.get('http://localhost:5000/api/notes', {
+    const res = await axios.get('https://notes-app-wnak.onrender.com/api/notes', {
       headers: { Authorization: `Bearer ${token}` }
     });
     setNotes(res.data);
@@ -23,12 +23,12 @@ function NotesPage({ token, setToken, dark, setDark }) {
 
   async function handleSave(note) {
     if (note.id) {
-      await axios.put(`http://localhost:5000/api/notes/${note.id}`,
+      await axios.put(`https://notes-app-wnak.onrender.com/api/notes/${note.id}`,
         { title: note.title, body: note.body },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } else {
-      await axios.post('http://localhost:5000/api/notes',
+      await axios.post('https://notes-app-wnak.onrender.com/api/notes',
         { title: note.title, body: note.body },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -37,7 +37,7 @@ function NotesPage({ token, setToken, dark, setDark }) {
   }
 
   async function handleDelete(id) {
-    await axios.delete(`http://localhost:5000/api/notes/${id}`,
+    await axios.delete(`https://notes-app-wnak.onrender.com/api/notes/${id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     setSelected(null);
@@ -47,7 +47,7 @@ function NotesPage({ token, setToken, dark, setDark }) {
   async function handleSearch(e) {
     setSearch(e.target.value);
     if (e.target.value.trim() === '') return fetchNotes();
-    const res = await axios.get(`http://localhost:5000/api/search?q=${encodeURIComponent(e.target.value)}`,
+    const res = await axios.get(`https://notes-app-wnak.onrender.com/api/search?q=${encodeURIComponent(e.target.value)}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     setNotes(res.data);

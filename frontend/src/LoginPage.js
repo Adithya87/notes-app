@@ -12,7 +12,7 @@ function LoginPage({ setToken }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { username, password });
+      const res = await axios.post('https://notes-app-wnak.onrender.com/api/auth/login', { username, password });
       setToken(res.data.token);
       navigate('/notes');
     } catch (err) {
