@@ -1,7 +1,4 @@
 // Ensure demo user exists on every start
-import bcrypt from 'bcryptjs';
-import { openDb } from './db.js';
-
 async function ensureDemoUser() {
   const db = await openDb();
   const username = 'temp';
