@@ -12,11 +12,12 @@ async function ensureDemoUser() {
 }
 ensureDemoUser();
 // Run migrations on every start
+
 import './migrate.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-const pool = require('./db');
+import pool from './db.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { marked } from 'marked';
