@@ -1,3 +1,21 @@
+// Ensure demo user exists on every start
+import bcrypt from 'bcryptjs';
+import { openDb } from './db.js';
+
+async function ensureDemoUser() {
+  const db = await openDb();
+  const username = 'temp';
+  const password = 'temp';
+  const hash = await bcrypt.hash(password, 10);
+  try {
+    await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);
+    console.log('Demo user created');
+  } catch (e) {
+    // Ignore if already exists
+  }
+  await db.close();
+}
+ensureDemoUser();
 // Run migrations on every start
 import './migrate.js';
 import express from 'express';
